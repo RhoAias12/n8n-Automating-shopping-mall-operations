@@ -1,0 +1,205 @@
+{
+  "name": "VIP 마케팅",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -240,
+        80
+      ],
+      "id": "f1bf5216-ff26-4b01-9166-65b201bf047b",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "databaseId": 318893,
+        "tableId": 735884,
+        "returnAll": true,
+        "additionalOptions": {}
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        16,
+        224
+      ],
+      "id": "6663269e-34e3-4d44-beb7-1e70b82756db",
+      "name": "Get many rows",
+      "credentials": {
+        "baserowApi": {
+          "id": "WMlwvSO46AKnNHTM",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f79919c9-2b00-4368-8e67-eef6e3938204",
+              "leftValue": "={{ $json['누적 주문액'] }}",
+              "rightValue": 100000,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        224
+      ],
+      "id": "06ee6b20-50ed-49c0-850a-9fc992ea9ee4",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json['이메일'] }}",
+        "subject": "={{ $json['고객명'] }}님, VIP 고객님을 위한 특별 혜택입니다!",
+        "message": "=안녕하세요, {{ $json.고객명 }}님!\n\nVIP 고객님을 위한 이번 주 특별 상품 카탈로그입니다.\n<br><br>\n\n{{ $items(\"Code in JavaScript\")[0].json.productCatalogHtml }}\n\n<br>\n감사합니다.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        208
+      ],
+      "id": "9dce5be3-d461-4f1a-a4e6-38b41d3c4bbb",
+      "name": "Send a message",
+      "webhookId": "ff1a425a-6b38-4dbb-991e-2fd9c527db0d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "pjSABbowur9Vdp5U",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "databaseId": 318893,
+        "tableId": 735883,
+        "returnAll": true,
+        "additionalOptions": {}
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "818b5e8b-4078-429b-8c3c-47f6e57c6216",
+      "name": "Get many rows1",
+      "credentials": {
+        "baserowApi": {
+          "id": "WMlwvSO46AKnNHTM",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let html = \"<ul>\";\nconst products = $items(\"Get many rows1\");\n\nfor (const item of products) {\n  html += `<li>${item.json.상품명} - ${item.json.가격}원</li>`;\n}\n\nhtml += \"</ul>\";\nreturn { productCatalogHtml: html };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        0
+      ],
+      "id": "c1d730c3-1217-46c7-b81b-be46c74b4fc4",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many rows1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bb0de733-014b-441a-bdef-1abbd3847204",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6d8b8965ffd44b0c1e8797cfb57f138c284919da8bbd18b07603e6b4c5a636f3"
+  },
+  "id": "nMVuYMpN9mgawYEv",
+  "tags": []
+}

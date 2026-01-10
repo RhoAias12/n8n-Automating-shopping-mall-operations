@@ -1,0 +1,101 @@
+{
+  "name": "배송 완료 처리",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1rq9xG2m69rLWAnBngYGmwdpSI9TnQrYk4fU6mnNvBWc",
+          "mode": "list",
+          "cachedResultName": "배송 완료 처리(응답)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rq9xG2m69rLWAnBngYGmwdpSI9TnQrYk4fU6mnNvBWc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 197113417,
+          "mode": "list",
+          "cachedResultName": "설문지 응답 시트1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rq9xG2m69rLWAnBngYGmwdpSI9TnQrYk4fU6mnNvBWc/edit#gid=197113417"
+        },
+        "event": "rowUpdate",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1b4a6bcb-507d-4b0a-8115-51c02032d04f",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "7W0skQ7vibqoGJNS",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "databaseId": 318893,
+        "tableId": 735885,
+        "rowId": "={{$node[\"Google Sheets Trigger\"].json['배송 완료된 주문번호 ']}}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 6193071,
+              "fieldValue": "배송 완료"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "7c484b46-130e-4028-bb9d-e14500608404",
+      "name": "Update a row",
+      "credentials": {
+        "baserowApi": {
+          "id": "WMlwvSO46AKnNHTM",
+          "name": "Baserow account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "610f11af-90e7-402a-92dc-387a6631315b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6d8b8965ffd44b0c1e8797cfb57f138c284919da8bbd18b07603e6b4c5a636f3"
+  },
+  "id": "BpivGuKUplQnEGVb",
+  "tags": []
+}
