@@ -1,0 +1,270 @@
+{
+  "name": "보류주문 재처리",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -816,
+        16
+      ],
+      "id": "b619b019-4741-40e3-82a0-f029cf88f11d",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "databaseId": 318893,
+        "tableId": 735885,
+        "returnAll": true,
+        "additionalOptions": {
+          "filters": {
+            "fields": [
+              {
+                "field": 6193071,
+                "operator": "contains",
+                "value": "재고 확인중"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        16
+      ],
+      "id": "34136a86-b449-4c2d-b5b2-6a92773f3111",
+      "name": "Get many rows",
+      "credentials": {
+        "baserowApi": {
+          "id": "WMlwvSO46AKnNHTM",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$json[\"재고\"]}}",
+                    "rightValue": "={{$node[\"Get many rows\"].json[\"주문 수량\"]}}",
+                    "operator": {
+                      "type": "number",
+                      "operation": "gte"
+                    },
+                    "id": "2c58d821-089a-451e-bad6-3a49ff74c0ff"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "02844ed2-8d18-4601-9d6b-cf2141a5e877",
+                    "leftValue": "={{$json[\"재고\"]}}",
+                    "rightValue": "={{$node[\"Get many rows\"].json[\"주문 수량\"]}}",
+                    "operator": {
+                      "type": "number",
+                      "operation": "lt"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -208,
+        16
+      ],
+      "id": "941c37f9-4c0d-4ce1-bfcf-e9d8e3634aaf",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "databaseId": 318893,
+        "tableId": 735883,
+        "rowId": "={{$node[\"Get a row\"].json.id}}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 6193065,
+              "fieldValue": "={{ parseInt($node[\"Get a row\"].json[\"재고\"]) - parseInt($node[\"Get many rows\"].json[\"주문 수량\"]) }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7740e987-cbb1-43d2-ab0f-39246d93eb90",
+      "name": "Update a row",
+      "credentials": {
+        "baserowApi": {
+          "id": "WMlwvSO46AKnNHTM",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "databaseId": 318893,
+        "tableId": 735885,
+        "rowId": "={{$node[\"Get many rows\"].json.id}}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 6193071,
+              "fieldValue": "배송 준비"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "7bec8ef8-bacf-41eb-ba0e-b2a3feaa1824",
+      "name": "Update a row1",
+      "credentials": {
+        "baserowApi": {
+          "id": "WMlwvSO46AKnNHTM",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "databaseId": 318893,
+        "tableId": 735883,
+        "rowId": "={{$json[\"주문 상품\"][0].id}}"
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        16
+      ],
+      "id": "5e5d7580-6c30-40fa-aabc-29f51c7406af",
+      "name": "Get a row",
+      "credentials": {
+        "baserowApi": {
+          "id": "WMlwvSO46AKnNHTM",
+          "name": "Baserow account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Update a row": {
+      "main": [
+        [
+          {
+            "node": "Update a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Get a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b3ad8413-5ae9-43e1-8b95-ca5d82f2f186",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6d8b8965ffd44b0c1e8797cfb57f138c284919da8bbd18b07603e6b4c5a636f3"
+  },
+  "id": "3ZTOjqL6sBwaeTZV",
+  "tags": []
+}
